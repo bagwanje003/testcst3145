@@ -1,0 +1,89 @@
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2, h3 {
+    color: #26B630;
+    margin: 0.5rem 0;
+  }
+  
+  button {
+    background-color: #343a40;
+    color: #26B630;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color:#343a40;
+  }
+  
+  button:disabled {
+    background-color: #26B630;
+    cursor: not-allowed;
+  }
+  
+  input {
+    padding: 0.5rem;
+    border: 1px solid #343a40;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* App Container */
+  #app {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background-color:#343a40;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+  }
+  
+  /* Lesson List */
+  .lesson {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #26B630;
+  }
+  
+  .lesson:last-child {
+    border-bottom: none;
+  }
+  
+  .lesson i {
+    font-size: 2rem;
+    color: #26B630;
+  }
+  
+  /* Shopping Cart */
+  .cart {
+    margin-top: 2rem;
+  }
+  
+  .cart ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .cart li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Checkout */
+  .checkout {
+    margin-top: 2rem;
+  }
