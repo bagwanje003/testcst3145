@@ -109,15 +109,13 @@ export default {
     },
     // Method to fetch lessons from server
     async getLessons() {
-      try {
-        const response = await fetch(this.serverUrl);
+      
+        const response = await fetch(this.lessons);
         if (!response.ok) {
-          throw new Error(`Failed to fetch lessons: ${response.statusText}`);
+          console.log('Fetched')
         }
         this.lessons = await response.json();
-      } catch (error) {
-        console.error("Failed to fetch lessons:", error);
-      }
+   
     },
     // Method to sort lessons based on selected sort option
     sortLessons() {
