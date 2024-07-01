@@ -1,147 +1,93 @@
 <template>
-  <div>
-    <div class="row">
-      <div class="col-md-4" v-for="lesson in filteredLessons" :key="lesson.id">
-        <div class="card mb-3">
-          <div class="card-header">
-            <img :src="lesson.image" alt="" class="img-fluid" />
-          </div>
-          <div class="card-body">
-            <h3 class="card-title">{{ lesson.subject }}</h3>
-            <p class="card-text">Location: {{ lesson.location }}</p>
-            <p class="card-text">Price: ${{ lesson.price }}</p>
-            <p class="card-text">Spaces: {{ lesson.spaces }}</p>
-            <button
-              :disabled="lesson.spaces === 0"
-              @click="addToCart(lesson)"
-              class="btn btn-success btn-block"
-            >
-              Add to Cart
-            </button>
-          </div>
+  <div class="row">
+    <div class="col-md-4" v-for="lesson in filteredLessons" :key="lesson.id">
+      <div class="card mb-3">
+        <div class="card-header">
+          <img :src="lesson.image" alt="" class="img-fluid">
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{ lesson.subject }}</h3>
+          <p class="card-text">Location: {{ lesson.location }}</p>
+          <p class="card-text">Price: ${{ lesson.price }}</p>
+          <p class="card-text">Spaces: {{ lesson.spaces }}</p>
+          <button :disabled="lesson.spaces === 0" @click="addToCart(lesson)" class="btn btn-success btn-block">Add to Cart</button>
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-end">
-      <button
-        :disabled="cartItemCount === 0"
-        @click="toggleCart"
-        class="btn btn-success"
-      >
-        <span class="badge badge-light">Cart {{ cartItemCount }}</span>
-      </button>
-    </div>
+  </div>
+  <div class="d-flex justify-content-end">
+     <button :disabled="cartItemCount === 0" @click="changeComponent" class="btn btn-success">
+      <span class="badge badge-light">Cart {{ cartItemCount }}</span>
+    </button> 
   </div>
 </template>
-
 <script>
 import LESSONS from './lessons.js';
 
 export default {
-  name: 'ProductList',
+  name: "ProductList",
   data() {
     return {
-      lessons: LESSONS,
-      cart: [],
-      showCart: false,
-      sortOption: '',
-      searchQuery: '',
-      name: '',
-      phone: '',
+      lessons: [], // Array to hold lesson data
+      cart: [], // Array to hold cart items
+      showCart: false, // Boolean to control cart visibility
+      sortOption: "", // String to store selected sort option
+      searchQuery: "", // String to store search query
     };
   },
   computed: {
+    // Filtered lessons based on search query
     filteredLessons() {
       let filtered = this.lessons;
       if (this.searchQuery) {
         filtered = filtered.filter(
-          (lesson) =>
-            lesson.subject
-              .toLowerCase()
-              .includes(this.searchQuery.toLowerCase()) ||
-            lesson.location
-              .toLowerCase()
-              .includes(this.searchQuery.toLowerCase())
+          lesson => 
+            lesson.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            lesson.location.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
       return filtered;
     },
-    validForm() {
-      return /^[A-Za-z]+$/.test(this.name) && /^\d+$/.test(this.phone);
-    },
+    // Count of items in the cart
     cartItemCount() {
       return this.cart.length;
     },
   },
+  created() {
+    // Load lessons data when component is created
+    this.getLessons();
+  },
   methods: {
+    // Method to get lessons data
+    getLessons() {
+      this.lessons = LESSONS; // Assign imported LESSONS array to lessons
+    },
+    // Method to add lesson to cart
     addToCart(lesson) {
-      console.log('addToCart called with:', lesson); // Debugging line
-      if (lesson && lesson.spaces > 0) {
-        const item = { ...lesson, spaces: 1 };
-        this.cart.push(item);
+      if (lesson.spaces > 0) {
+        const itemInCart = this.cart.find(item => item.id === lesson.id);
+        if (itemInCart) {
+          itemInCart.quantity++;
+        } else {
+          this.cart.push({ ...lesson, quantity: 1 });
+        }
         lesson.spaces--;
-      } else {
-        console.error('Invalid lesson or no spaces available:', lesson); // Debugging line
+        console.log('Added to cart:', lesson);
       }
     },
+    // Method to toggle cart visibility
     toggleCart() {
       this.showCart = !this.showCart;
+      
     },
+    // Method to remove lesson from cart
     removeFromCart(item) {
       const index = this.cart.indexOf(item);
       if (index !== -1) {
         this.cart.splice(index, 1);
-        const lesson = this.lessons.find((l) => l.id === item.id);
-        if (lesson) {
-          lesson.spaces++;
-        }
-      }
-    },
-    sortLessons() {
-      if (this.sortOption) {
-        this.lessons.sort((a, b) => {
-          const order = this.sortOption === 'price' ? 1 : -1;
-          if (a[this.sortOption] < b[this.sortOption]) return -1 * order;
-          if (a[this.sortOption] > b[this.sortOption]) return 1 * order;
-          return 0;
-        });
-      }
-    },
-    async checkout() {
-      if (this.validForm) {
-        const order = {
-          lessons: this.cart.map((item) => ({
-            id: item.id,
-            spaces: item.spaces,
-          })),
-          username: this.name,
-          phonenumber: this.phone,
-        };
-
-        try {
-          const response = await fetch(
-            'http://localhost:8000/collection/orders',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(order),
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error(`Error creating order: ${response.statusText}`);
-          }
-
-          alert(
-            `Order created successfully for ${this.name} (phone: ${this.phone})!`
-          );
-          this.cart = [];
-          this.name = '';
-          this.phone = '';
-        } catch (error) {
-          console.error('Error:', error.message);
-          // Handle checkout errors (e.g., display error message to user)
-        }
+        const lesson = this.lessons.find(l => l.id === item.id);
+        lesson.spaces += item.quantity;
+        console.log('Removed from cart:', item);
       }
     },
   },
