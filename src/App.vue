@@ -22,13 +22,12 @@
       </div>
     </div>
     <main>
-      <!-- Conditional rendering of components -->
       <ProductList @addProducts="addToCart" :lessons="filteredLessons" v-if="activeComponent === 'ProductList'" />
       <CheckoutPage :cart="cart" v-else-if="activeComponent === 'CheckoutPage'" @remove-from-cart="removeFromCart" @clear-cart="clearCart" />
       
       <button :disabled="cart.length == 0" @click="changeComponent" class="btn btn-success">
-      <span class="badge badge-light">Cart {{ cart.length }}</span>
-    </button>
+        <span class="badge badge-light">Cart {{ cart.length }}</span>
+      </button>
     </main>
   </div>
 </template>
@@ -47,7 +46,7 @@ export default {
     return {
       serverUrl: "http://localhost:8000/components/lessons",
       lessons: [], // Array to store lessons fetched from server
-      cart: JSON.parse(localStorage.getItem('cart')) || {}, // Object to store cart items
+      cart: [], // Array to store cart items
       activeComponent: 'ProductList', // Default active component
       searchQuery: "", // Search query for filtering lessons
       sortOption: "", // Sort option for sorting lessons
@@ -56,8 +55,7 @@ export default {
   },
   computed: {
     cartItemCount() {
-      // Compute total number of items in the cart
-      return Object.values(this.cart).reduce((total, item) => total + item.quantity, 0);
+      return this.cart.length;
     },
     filteredLessons() {
       let filtered = this.lessons;
@@ -72,15 +70,12 @@ export default {
     },
   },
   created() {
-    // Fetch lessons from server when component is created
     this.getLessons();
   },
   methods: {
-    // Method to toggle between ProductList and CheckoutPage components
     changeComponent() {
       this.activeComponent = this.activeComponent === 'ProductList' ? 'CheckoutPage' : 'ProductList';
     },
-    // Method to add lesson to cart
     addToCart(lesson) {
       if (lesson.spaces > 0) {
         const itemInCart = this.cart.find(item => item.id === lesson.id);
@@ -93,31 +88,30 @@ export default {
         console.log('Added to cart:', lesson);
       }
     },
-    // Method to remove item from cart
     removeFromCart(item) {
-      if (this.cart[item._id].quantity > 1) {
-        this.cart[item._id].quantity--;
-      } else {
-        delete this.cart[item._id];
+      const index = this.cart.findIndex(cartItem => cartItem.id === item.id);
+      if (index !== -1) {
+        if (this.cart[index].quantity > 1) {
+          this.cart[index].quantity--;
+        } else {
+          this.cart.splice(index, 1);
+        }
       }
-      localStorage.setItem('cart', JSON.stringify(this.cart));
     },
-    // Method to clear the entire cart
     clearCart() {
-      this.cart = {};
-      localStorage.setItem('cart', JSON.stringify(this.cart));
+      this.cart = [];
     },
-    // Method to fetch lessons from server
     async getLessons() {
-      
-        const response = await fetch(this.lessons);
+      try {
+        const response = await fetch(this.serverUrl);
         if (!response.ok) {
-          console.log('Fetched')
+          throw new Error('Failed to fetch lessons');
         }
         this.lessons = await response.json();
-   
+      } catch (error) {
+        console.error(error.message);
+      }
     },
-    // Method to sort lessons based on selected sort option
     sortLessons() {
       if (this.sortOption) {
         this.lessons.sort((a, b) => {
@@ -130,3 +124,7 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+/* Add any scoped styles for your component here */
+</style>

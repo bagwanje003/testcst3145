@@ -1,26 +1,27 @@
 <template>
   <div>
     <h1>Checkout</h1>
-    <div v-if="cartItems.length > 0">
-      <div v-for="(item, index) in cartItems" :key="index" class="cart-item">
-        <h2>{{ item.subject }}</h2>
-        <p>Quantity: {{ item.quantity }}</p>
-        <p>Price: ${{ item.price }}</p>
-        <p>Total: ${{ item.price * item.quantity }}</p>
-        <button @click="removeItem(item)">Remove</button>
+    <div v-if="cartItems.length > 0" class="container p-3 m-2">
+      <div v-for="(item, index) in cartItems" :key="index" class="cart-item card">
+        <div class="card-body">
+          <h2 class="card-title">{{ item.subject }}</h2>
+          <p class="card-text">Quantity: {{ item.quantity }}</p>
+          <p class="card-text">Price: ${{ item.price }}</p>
+          <p class="card-text">Total: ${{ item.price * item.quantity }}</p>
+          <button @click="removeItem(item)" class="btn btn-outline-danger">Remove</button>
+        </div>
       </div>
       <h3>Total: ${{ totalPrice }}</h3>
-
-      <form @submit.prevent="handleSubmit">
-        <div>
+      <form @submit.prevent="handleSubmit" class="m-3">
+        <div class="mx-4 mb-3">
           <label for="name">Name:</label>
-          <input type="text" v-model="name" id="name" required />
+          <input type="text" v-model="name" id="name" required class="form-control"/>
         </div>
-        <div>
+        <div class="mx-4 mb-3">
           <label for="phone">Phone:</label>
-          <input type="text" v-model="phone" id="phone" required />
+          <input type="text" v-model="phone" id="phone" required class="form-control"/>
         </div>
-        <button type="submit" :disabled="!validForm">Confirm Order</button>
+        <button type="submit" :disabled="!validForm" class="btn btn-outline-success mx-4">Confirm Order</button>
       </form>
     </div>
     <div v-else>
@@ -34,7 +35,7 @@ export default {
   name: "CheckoutPage",
   props: {
     cart: {
-      type: Object,
+      type: Array,
       required: true,
     },
   },
@@ -46,8 +47,7 @@ export default {
   },
   computed: {
     cartItems() {
-      // Convert cart object to an array of items for easier iteration
-      return Object.values(this.cart);
+      return this.cart;
     },
     totalPrice() {
       return this.cartItems.reduce(
@@ -66,10 +66,10 @@ export default {
         return;
       }
 
-      // Handle form submission logic here (as previously implemented)
-      // Ensure it aligns with your application's requirements
       alert("Order successful!");
       this.$emit("clear-cart");
+      this.name = "";
+      this.phone = "";
     },
     removeItem(item) {
       this.$emit("remove-from-cart", item);

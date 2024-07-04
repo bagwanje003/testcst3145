@@ -10,15 +10,11 @@
           <p class="card-text">Location: {{ lesson.location }}</p>
           <p class="card-text">Price: ${{ lesson.price }}</p>
           <p class="card-text">Spaces: {{ lesson.spaces }}</p>
-          <button :disabled="lesson.spaces === 0" @click="addToCart(lesson)" class="btn btn-success btn-block">Add to Cart</button>
+          <button :disabled="lesson.spaces === 0" @click="addToCart(lesson)" class="btn btn-success btn-block">Add to
+            Cart</button>
         </div>
       </div>
     </div>
-  </div>
-  <div class="d-flex justify-content-end">
-     <button :disabled="cartItemCount === 0" @click="changeComponent" class="btn btn-success">
-      <span class="badge badge-light">Cart {{ cartItemCount }}</span>
-    </button> 
   </div>
 </template>
 <script>
@@ -26,6 +22,7 @@ import LESSONS from './lessons.js';
 
 export default {
   name: "ProductList",
+  props: ['addProducts'],
   data() {
     return {
       lessons: [], // Array to hold lesson data
@@ -41,7 +38,7 @@ export default {
       let filtered = this.lessons;
       if (this.searchQuery) {
         filtered = filtered.filter(
-          lesson => 
+          lesson =>
             lesson.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
             lesson.location.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
@@ -58,27 +55,20 @@ export default {
     this.getLessons();
   },
   methods: {
+    addToCart(lesson) {
+      this.$emit('addProducts', lesson)
+    },
+
     // Method to get lessons data
     getLessons() {
       this.lessons = LESSONS; // Assign imported LESSONS array to lessons
     },
     // Method to add lesson to cart
-    addToCart(lesson) {
-      if (lesson.spaces > 0) {
-        const itemInCart = this.cart.find(item => item.id === lesson.id);
-        if (itemInCart) {
-          itemInCart.quantity++;
-        } else {
-          this.cart.push({ ...lesson, quantity: 1 });
-        }
-        lesson.spaces--;
-        console.log('Added to cart:', lesson);
-      }
-    },
+
     // Method to toggle cart visibility
     toggleCart() {
       this.showCart = !this.showCart;
-      
+
     },
     // Method to remove lesson from cart
     removeFromCart(item) {
